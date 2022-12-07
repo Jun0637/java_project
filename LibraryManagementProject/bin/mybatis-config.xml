@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+   <properties resource="db.properties"/>
+   <typeAliases>
+      <typeAlias type="global.scit.LibraryProject.vo.Book" alias="Book" />
+      <typeAlias type="global.scit.LibraryProject.vo.BookQuantity" alias="BookQuantity" />
+      <typeAlias type="global.scit.LibraryProject.vo.RentVO" alias="RentVO" />
+      <typeAlias type="global.scit.LibraryProject.vo.Users1" alias="Users1" />
+   </typeAliases>
+  
+   <environments default="development">
+      <environment id="development">
+         <transactionManager type="JDBC" />
+         <dataSource type="POOLED">
+            <property name="driver" value="${driver}" />
+            <property name="url" value="${url}" />
+            <property name="username" value="${username}" />
+            <property name="password" value="${password}" />
+         </dataSource>
+      </environment>
+   </environments>
+   <mappers>
+      <mapper resource="LMMapper.xml" />
+   </mappers>
+</configuration>

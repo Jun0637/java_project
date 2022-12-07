@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <!--public MemberInfo selectOne(String usrid);-->
+<!--resultType을 너무 길면 이름을 별칭을 지을수 있다. 여기서는 MemberInfo mybatis-config.xml에서 typeAliases로 바꿈  -->
+<mapper namespace="global.scit.LibraryProject.dao.LibraryMapper">
+
+	<insert id="registbook" parameterType="Book">
+	INSERT INTO Book (BOOK_ISBN,BOOK_NUMBER, BOOK_TITLE, BOOK_AUTHOR,BOOK_RENT_YN, BOOK_COM, BOOK_STOCK)
+	VALUES(#{isbn},book_seq.nextval,#{title},#{author},'Y',#{bookcom},#{stock})
+	</insert>
+	
+	<delete id="delete" parameterType="int">
+	DELETE FROM book
+	WHERE Book_NUMBER = #{number}
+	</delete>
+	
+	<select id = "selectOne" parameterType = "int" resultType="Book">
+	SELECT
+		BOOK_ISBN as isbn, BOOK_NUMBER as numbers, BOOK_TITLE as title, BOOK_AUTHOR as author, BOOK_RENT_YN as rent,  BOOK_COM as bookcom, BOOK_STOCK as stock
+	FROM 
+		book
+	WHERE 
+		BOOK_NUMBER = #{number}
+	</select>
+	
+	<select id = "selectIsbn" parameterType = "String" resultType="Book">
+	SELECT
+		BOOK_ISBN as isbn, BOOK_NUMBER as numbers, BOOK_TITLE as title, BOOK_AUTHOR as author, BOOK_RENT_YN as rent,  BOOK_COM as bookcom, BOOK_STOCK as stock
+	FROM 
+		book
+	WHERE 
+		BOOK_ISBN = #{isbn}
+	</select>
+	
+	
+	<select id="Allbook" resultType="Book">
+	SELECT
+		BOOK_ISBN as isbn, BOOK_NUMBER as numbers, BOOK_TITLE as title, BOOK_AUTHOR as author, BOOK_RENT_YN as rent,  BOOK_COM as bookcom, BOOK_STOCK as stock
+
+    FROM 
+		book
+	</select>
+	
+	<update id="update" parameterType="Book">
+		update book
+		set BOOK_STOCK = #{stock}
+		WHERE BOOK_ISBN = #{isbn}
+	</update>
+	
+
+</mapper>
