@@ -1,43 +1,104 @@
-CREATE TABLE BOOK 
+DROP TABLE BOOK;
+DROP TABLE USERS1;
+DROP TABLE RENT;
+
+
+CREATE TABLE USERS1
 (
-  BOOK_NUMBER	NUMBER PRIMARY KEY, --책 일련번호
-  BOOK_TITLE	VARCHAR2(100)  NOT NULL, --도서 제목
-  BOOK_AUTHOR	VARCHAR2(30)  NOT NULL, --저자
-  BOOK_RENT_YN	CHAR(1) DEFAULT 'Y', --대여 가능여부 (BOOK_STOCK >= 1 이면 대여가능)
-  BOOK_STOCK NUMBER REFERENCES bookQuantity(BOOK_STOCK)
+    usrid VARCHAR2(30) PRIMARY KEY,
+    usrpw VARCHAR2(30),
+    usrname VARCHAR2(30),
+    usrphone VARCHAR2(30)
 );
 
-CREATE SEQUENCE BOOK_SEQ;
+INSERT INTO USERS1 (usrid, usrpw, usrname, usrphone)
+    VALUES('cc','cc','손흥민','010-1234-1234');
+    
+    
+INSERT INTO USERS1 (usrid, usrpw, usrname, usrphone)
+    VALUES('scit','scit','제니','010-7777-7777');
+    
+INSERT INTO USERS1 (usrid, usrpw, usrname, usrphone)
+    VALUES('it','it','유주','010-5577-5577');    
 
-CREATE TABLE bookQuantity (
-    BOOK_NUMBER REFERENCES BOOK(BOOK_NUMNBER), -- 도서 번호
-    BOOK_TITLE VARCHAR2(100), --도서 제목
-    BOOK_STOCK  NUMBER DEFAULT 1 PRIMARY KEY  -- 도서 수량
-);
+COMMIT;
+    SELECT * FROM USERS1;
 
-
-CREATE TABLE USERS1 --회원 테이블
+CREATE TABLE BOOK
 (
-  USER_ID VARCHAR2(20) NOT NULL,
-  USER_PASSWORD VARCHAR2(20) NOT NULL,
-  USER_NUMBER	NUMBER PRIMARY KEY, --회원 (일련)번호  
-  USER_NAME	VARCHAR2(30) NOT NULL, -- 회원 이름
-  USER_PHONENUM	VARCHAR2(15), --폰번호
-  USER_MAIL	VARCHAR2(50), --이메일
-  USER_RENTED_BOOK VARCHAR2(20),-- 대여 도서명
-  USER_RENTED_BOOK_QUANTITY NUMBER --대여 도서권수
+    isbn VARCHAR2(30) PRIMARY KEY,
+    title VARCHAR2(30) NOT NULL,
+    author VARCHAR2(30) NOT NULL,
+    bookcom VARCHAR2(30) NOT NULL,
+    stock NUMBER DEFAULT 0
 );
-CREATE SEQUENCE USER_SEQ;
+select * from book;
+
+INSERT INTO Book (isbn, title, author, bookcom, stock)
+VALUES('a','트렌드 코리아 2023', '김난도','미래의 창',3);
 
 
-CREATE TABLE RENT 
+INSERT INTO Book (isbn, title, author, bookcom, stock)
+VALUES('b','아버지의 해방일지', '정지아','창비',1);
+
+INSERT INTO Book (isbn, title, author, bookcom, stock)
+VALUES('c','불편한 편의점', '김호연','나무옆의자',4);
+    
+INSERT INTO Book (isbn, title, author, bookcom, stock)
+VALUES('d','마흔에 읽는 니체', '장재형','유노북스',5);
+INSERT INTO Book (isbn, title, author, bookcom, stock)
+    VALUES('e','역행자', '자청','웅진지식하우스',5);
+commit;
+
+	SELECT
+		isbn, title, author, bookcom, stock
+    FROM 
+		book;
+        
+        
+CREATE TABLE RENT
 (
-  RENT_NUMBER	NUMBER PRIMARY KEY, --대여 (일련)번호
-  USER_NUMBER	NUMBER NOT NULL REFERENCES USERS1(USER_NUMBER), --회원 일련번호 (누가 빌려갔는지)
-  BOOK_NUMBER	NUMBER NOT NULL REFERENCES BOOK(BOOK_NUMBER), --도서 일련번호 (어떤 책을 빌려갔는지)
-  RENT_DATE	DATE, --도서 대출일 (언제 빌려갔는지)
-  RENT_RETURN_DATE	DATE, --도서 반납 예정일 (도서대출일+20)
-  RENT_RETURN_YN CHAR(1), -- 도서 반납 여부(Y/N)
-  BOOK_STOCK NUMBER REFERENCES bookQuantity(BOOK_STOCK) --도서 수량 (현재 몇권 남아있는지)
+    rentnum NUMBER PRIMARY KEY,
+    rentdate DATE DEFAULT sysdate,
+    returndate DATE DEFAULT sysdate+10,
+    usrid VARCHAR2(30) REFERENCES USERS1(usrid),
+    isbn VARCHAR2(30) REFERENCES BOOK(isbn)
 );
-CREATE SEQUENCE RENT_SEQ;
+
+INSERT INTO RENT(rentnum,usrid,isbn)
+VALUES (RENT_seq.NEXTVAL, 'cc', 'a');
+
+DELETE FROM Book
+WHERE isbn = 'e';
+
+DROP SEQUENCE RENT_seq;
+
+SELECT * FROM RENT;
+
+COMMIT;
+
+CREATE SEQUENCE RENT_seq;
+
+	SELECT
+		r.rentnum, r.isbn, r.usrid, r.rentdate, r.returndate, b.stock
+    FROM 
+		rent r, users1 u,book b
+	WHERE
+		r.usrid = u.usrid
+		AND
+		b.isbn= r.isbn;
+
+SELECT 
+    TITLE AS "책제목",
+       AUTHOR      AS "지은이",
+	   BOOKCOM      AS "출판사",
+       stock      AS "수량"
+FROM Book;
+
+
+
+COMMIT;
+
+SELECT* FROM BOOK;
+SELECT* FROM rent;
+SELECT* FROM USERS1;

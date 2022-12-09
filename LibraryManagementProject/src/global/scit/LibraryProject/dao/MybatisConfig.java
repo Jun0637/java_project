@@ -9,9 +9,9 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 public class MybatisConfig {
 	private static SqlSessionFactory sqlSessionFactory;
 	
-	// static 블럭 => 생성자와 유사, static 멤버를 초기화 하는 용도로 사용
+	//static 블럭 -> 생성자와 유사, static멤버를 초기화하는 용도로 사용
 	static {
-		// maybatis-config.xml을 읽어와서 Oracle과 연결하는 작업
+		// mybatis-config.xml을 읽어와서 Oracle과 연결하는 작업
 		String resource = "mybatis-config.xml";
 		
 		try {
@@ -23,8 +23,6 @@ public class MybatisConfig {
 		}
 	}
 	
-
-
 	public static SqlSessionFactory getSessionFactory() {
 		return sqlSessionFactory;
 	}

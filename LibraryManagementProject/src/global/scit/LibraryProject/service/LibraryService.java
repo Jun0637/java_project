@@ -4,7 +4,9 @@ import java.util.List;
 
 import global.scit.LibraryProject.dao.LibraryDAO;
 import global.scit.LibraryProject.vo.Book;
-import global.scit.LibraryProject.vo.RentVO;
+import global.scit.LibraryProject.vo.Rent;
+import global.scit.LibraryProject.vo.Users1;
+
 
 public class LibraryService {
 	LibraryDAO dao = new LibraryDAO();
@@ -19,27 +21,9 @@ public class LibraryService {
 		return result;
 	}
 
-	public int delete(int numbers) {
-		int result = dao.delete(numbers);
+	public int delete(String isbn) {
+		int result = dao.delete(isbn);
 		return result;
-	}
-
-	public int returnbook(int number) {
-		int result = dao.returnbook(number);
-		return result;
-		// 재고 수량을 1증가.
-
-	}
-
-	public int rentbook(int numbers) {
-		int result = dao.rentbook(numbers);
-		return result;
-	}
-
-	public Book selectOne(int numbers) {
-		Book vo = dao.selectOne(numbers);
-		return vo;
-
 	}
 
 	public Book selectIsbn(String isbn) {
@@ -47,9 +31,45 @@ public class LibraryService {
 		return vo;
 	}
 
-	public int update(Book vo1) {
-		int result = dao.update(vo1);
+	public int update(Book b) {
+		int result = dao.update(b);
 		return result;
 	}
+
+	public int rentbook(Book b) {
+		int result = dao.rentbook(b);
+		return result;
+	}
+
+	public int returnbook(Book b) {
+		int result = dao.returnbook(b);
+		return result;
+	}
+
+	public List<Rent> Allrent() {
+		List<Rent> list = dao.Allrent();
+		return list;
+	}
+
+	public int updateRent(Rent to) {
+		int result = dao.updateRent(to);
+		return result;
+	}
+
+	public Users1 selectId(String usrid) {
+		Users1 vo = dao.selectId(usrid);
+		return vo;
+	}
+
+	public int deleteRent(Rent to) {
+		int result = dao.deleteRent(to);
+		return result;
+	}
+
+	public Rent findIdisbn(String usrid) {
+		Rent vo = dao.findIdisbn(usrid);
+		return vo;
+	}
+
 
 }

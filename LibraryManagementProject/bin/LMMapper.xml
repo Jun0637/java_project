@@ -8,47 +8,99 @@
 <mapper namespace="global.scit.LibraryProject.dao.LibraryMapper">
 
 	<insert id="registbook" parameterType="Book">
-	INSERT INTO Book (BOOK_ISBN,BOOK_NUMBER, BOOK_TITLE, BOOK_AUTHOR,BOOK_RENT_YN, BOOK_COM, BOOK_STOCK)
-	VALUES(#{isbn},book_seq.nextval,#{title},#{author},'Y',#{bookcom},#{stock})
+	INSERT INTO Book (isbn, title, author, bookcom, stock)
+
+	VALUES(#{isbn},#{title},#{author},#{bookcom},#{stock})
 	</insert>
 	
-	<delete id="delete" parameterType="int">
+	
+	<delete id="delete" parameterType="String">
 	DELETE FROM book
-	WHERE Book_NUMBER = #{number}
+	WHERE isbn = #{isbn}
 	</delete>
 	
-	<select id = "selectOne" parameterType = "int" resultType="Book">
-	SELECT
-		BOOK_ISBN as isbn, BOOK_NUMBER as numbers, BOOK_TITLE as title, BOOK_AUTHOR as author, BOOK_RENT_YN as rent,  BOOK_COM as bookcom, BOOK_STOCK as stock
-	FROM 
-		book
-	WHERE 
-		BOOK_NUMBER = #{number}
-	</select>
 	
 	<select id = "selectIsbn" parameterType = "String" resultType="Book">
 	SELECT
-		BOOK_ISBN as isbn, BOOK_NUMBER as numbers, BOOK_TITLE as title, BOOK_AUTHOR as author, BOOK_RENT_YN as rent,  BOOK_COM as bookcom, BOOK_STOCK as stock
+		isbn, title, author, bookcom, stock
 	FROM 
 		book
 	WHERE 
-		BOOK_ISBN = #{isbn}
+		isbn = #{isbn}
 	</select>
 	
 	
 	<select id="Allbook" resultType="Book">
 	SELECT
-		BOOK_ISBN as isbn, BOOK_NUMBER as numbers, BOOK_TITLE as title, BOOK_AUTHOR as author, BOOK_RENT_YN as rent,  BOOK_COM as bookcom, BOOK_STOCK as stock
-
+		isbn, title, author, bookcom, stock
     FROM 
 		book
 	</select>
 	
+	<select id="Allrent" resultType="Rent">
+	SELECT
+		r.rentnum, r.isbn, r.usrid, r.rentdate, r.returndate, b.stock
+    FROM 
+		rent r, users1 u,book b
+	WHERE
+		r.usrid = u.usrid
+		AND
+		b.isbn= r.isbn
+	</select>
+	
 	<update id="update" parameterType="Book">
 		update book
-		set BOOK_STOCK = #{stock}
-		WHERE BOOK_ISBN = #{isbn}
+		set stock = #{stock}
+		WHERE isbn = #{isbn}
 	</update>
 	
+	<update id="rentbook" parameterType="Book">
+		update book
+		set stock = #{stock}
+		WHERE isbn = #{isbn}
+	</update>
+	
+	<update id="returnbook" parameterType="Book">
+		update book
+		set stock = #{stock}
+		WHERE isbn = #{isbn}
+	</update>		
+	
+	<insert id="updateRent" parameterType="Rent">
+		
+		insert into Rent(rentnum,rentdate,returndate,usrid,isbn)
+		values(
+			rent_seq.nextval,
+			sysdate,
+			sysdate+10,
+			#{usrid},
+			#{isbn})
+	</insert>	
+	
+		<delete id="deleteRent" parameterType="String">
+	DELETE rent
+	WHERE isbn = #{isbn}
+	AND usrid = #{usrid}
+	</delete>
+	
+	<select id="selectId" parameterType="String" resultType="Users1">
+		SELECT 
+			usrid, usrpw
+		FROM 
+			users1
+		WHERE 
+			usrid =#{usrid}
 
+	</select>
+	
+		<select id="findIdisbn" parameterType="String" resultType="Rent">
+		SELECT 
+			usrid, isbn
+		FROM
+			rent
+		WHERE 
+			usrid =#{usrid}
+
+	</select>
+	
 </mapper>

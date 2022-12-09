@@ -1,16 +1,13 @@
 package global.scit.LibraryProject.vo;
 
 public class Book {
-	private int numbers; // 책 일련번호
 	private String isbn; // isbn 번호
 	private String title; // 도서제목
 	private String author; // 저자
 	private String bookcom;// 출판사
-	private char rent; // 책 대출 가능 여부
 	private int stock; // 재고
 
-	public Book() {
-	}
+	public Book() {}
 
 	
 	public Book(String isbn, int stock) {
@@ -20,16 +17,12 @@ public class Book {
 	}
 
 
-	public Book(String isbn, String title, String author, String bookcom, int stock) {
+	public Book(String isbn, String title, String author, String bookcom, int stock){
 		this.isbn = isbn;
 		this.title = title;
 		this.author = author;
 		this.bookcom = bookcom;
 		this.stock = stock;
-	}
-
-	public int getNumbers() {
-		return numbers;
 	}
 
 	public String getIsbn() {
@@ -48,16 +41,8 @@ public class Book {
 		return author;
 	}
 
-	public char getRent() {
-		return rent;
-	}
-
 	public int getStock() {
 		return stock;
-	}
-
-	public void setNumbers(int numbers) {
-		this.numbers = numbers;
 	}
 
 	public void setIsbn(String isbn) {
@@ -76,17 +61,15 @@ public class Book {
 		this.bookcom = bookcom;
 	}
 
-	public void setRent(char rent) {
-		this.rent = rent;
-	}
-
 	public void setStock(int stock) {
 		this.stock = stock;
 	}
 
+
 	@Override
 	public String toString() {
-		return "Book [, isbn= " + isbn + ", numbers=" + numbers + ", title=" + title + ", author=" + author + ", rent="
-				+ rent + ", bookcom=" + bookcom + ", rent=" + rent + ", stock=" + stock + "]";
+		
+		return isbn +"\t"+ title +"\t"+ author +"\t"+  bookcom +"\t"+stock;
 	}
+
 }
