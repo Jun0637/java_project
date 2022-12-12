@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="global.scit.LibraryProject.dao.LibraryMapper">
+
+	<insert id="registbook" parameterType="Book">
+	INSERT INTO 
+		Book (isbn, title, author, bookcom, stock)
+
+	VALUES
+		(#{isbn},#{title},#{author},#{bookcom},#{stock})
+	</insert>
+		
+	<delete id="delete" parameterType="String">
+	DELETE FROM 
+		book
+	WHERE 
+		isbn = #{isbn}
+	</delete>	
+	
+	<select id = "selectIsbn" parameterType = "String" resultType="Book">
+	SELECT
+		isbn, title, author, bookcom, stock
+	FROM 
+		book
+	WHERE 
+		isbn = #{isbn}
+	</select>
+	
+	<select id="Allbook" resultType="Book">
+	SELECT
+		isbn, title, author, bookcom, stock
+    FROM 
+		book
+	</select>
+	
+	<select id="Allrent" resultType="Rent">
+	SELECT
+		r.rentnum, r.isbn, r.usrid, r.rentdate, r.returndate, b.stock
+    FROM 
+		rent r, users1 u,book b
+	WHERE
+		r.usrid = u.usrid
+	AND
+		b.isbn= r.isbn
+	</select>
+	
+	<update id="update" parameterType="Book">
+	UPDATE 
+		book
+	SET 
+		stock = #{stock}
+	WHERE isbn = #{isbn}
+	</update>
+	
+	<update id="rentbook" parameterType="Book">
+	UPDATE 
+		book
+	SET 
+		stock = #{stock}
+	WHERE 
+		isbn = #{isbn}
+	</update>
+	
+	<update id="returnbook" parameterType="Book">
+	UPDATE	
+		book
+	SET
+		stock = #{stock}
+	WHERE 
+		isbn = #{isbn}
+	</update>		
+	
+	<insert id="updateRent" parameterType="Rent">
+	INSERT INTO	
+		Rent(rentnum,rentdate,returndate,usrid,isbn)
+	VALUES
+		(rent_seq.nextval,sysdate,sysdate+10,#{usrid},#{isbn})
+	</insert>	
+	
+	<delete id="deleteRent" parameterType="Rent">
+	DELETE 
+		rent
+	WHERE 
+		isbn = #{isbn}
+	AND 
+		usrid = #{usrid}
+	</delete>
+	
+	<select id="selectId" parameterType="String" resultType="Users1">
+	SELECT 
+		usrid, usrpw
+	FROM 
+		users1
+	WHERE 
+		usrid =#{usrid}
+	</select>
+	
+	<select id="findIdisbn" parameterType="String" resultType="Rent">
+	SELECT 
+		usrid, isbn
+	FROM
+		rent
+	WHERE 
+		usrid =#{usrid}
+	</select>
+	
+</mapper>
