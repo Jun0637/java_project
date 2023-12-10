@@ -1,0 +1,131 @@
+PurchaseRecord.java
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+public class PurchaseRecord {
+    private String category;
+    private LocalDate purchaseDate;
+    private int quantity;
+    private int unitPrice;
+
+    public PurchaseRecord(String category, String purchaseDate, int quantity, int unitPrice) {
+        this.category = category;
+        this.purchaseDate = LocalDate.parse(purchaseDate, DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public LocalDate getPurchaseDate() {
+        return purchaseDate;
+    }
+
+    public int getTotalPrice() {
+        return quantity * unitPrice;
+    }
+}
+PurchaseSummaryCalculator.java
+
+java
+Copy code
+import java.util.HashMap;
+import java.util.Map;
+
+public class PurchaseSummaryCalculator {
+    private Map<String, Map<String, Integer>> summaryMap = new HashMap<>();
+
+    public void processPurchaseRecord(PurchaseRecord record) {
+        String monthYear = record.getPurchaseDate().format(DateTimeFormatter.ofPattern("yyyy/MM"));
+        summaryMap.computeIfAbsent(monthYear, k -> new HashMap<>())
+                 .merge(record.getCategory(), record.getTotalPrice(), Integer::sum);
+    }
+
+    public Map<String, Map<String, Integer>> getSummaryMap() {
+        return summaryMap;
+    }
+}
+
+
+---------------------
+PurchaseSummaryCalculator.java
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class PurchaseSummaryCalculator {
+    private Map<String, Map<String, Integer>> summaryMap = new HashMap<>();
+
+    public void processPurchaseRecord(PurchaseRecord record) {
+        String monthYear = record.getPurchaseDate().format(DateTimeFormatter.ofPattern("yyyy/MM"));
+        summaryMap.computeIfAbsent(monthYear, k -> new HashMap<>())
+                 .merge(record.getCategory(), record.getTotalPrice(), Integer::sum);
+    }
+
+    public Map<String, Map<String, Integer>> getSummaryMap() {
+        return summaryMap;
+    }
+}
+
+---------------------------
+OutputFormatter.java
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Map;
+
+public class OutputFormatter {
+    public static void writeToFile(String outputPath, Map<String, Map<String, Integer>> summaryMap) {
+        try (FileWriter writer = new FileWriter(outputPath)) {
+            writer.write("購入月,分類,総額\n");
+
+            summaryMap.forEach((monthYear, categoryMap) ->
+                categoryMap.forEach((category, totalAmount) -> {
+                    try {
+                        writer.write(monthYear + "," + category + "," + totalAmount + "\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                })
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+---------------
+PurchaseSummary.java (Main Program)
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class PurchaseSummary {
+    public static void main(String[] args) {
+        if (args.length != 2) {
+            System.out.println("Usage: java PurchaseSummary <inputFilePath> <outputFilePath>");
+            return;
+        }
+
+        String inputFilePath = args[0];
+        String outputFilePath = args[1];
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFilePath))) {
+            PurchaseSummaryCalculator calculator = new PurchaseSummaryCalculator();
+            reader.lines()
+                  .skip(1) // Skip the header line
+                  .map(line -> line.split(","))
+                  .filter(tokens -> tokens.length == 5)
+                  .map(tokens -> new PurchaseRecord(tokens[0], tokens[2], Integer.parseInt(tokens[3]), Integer.parseInt(tokens[4])))
+                  .forEach(calculator::processPurchaseRecord);
+
+            OutputFormatter.writeToFile(outputFilePath, calculator.getSummaryMap());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
