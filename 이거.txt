@@ -129,3 +129,24 @@ public class PurchaseSummary {
         }
     }
 }
+---------------------
+설명
+. PurchaseRecord.java
+PurchaseRecord 클래스는 구매 기록을 나타냅니다.
+속성으로는 카테고리(category), 구매일자(purchaseDate), 수량(quantity), 단가(unitPrice)가 있습니다.
+생성자는 주어진 값으로 객체를 초기화합니다.
+getTotalPrice 메서드는 수량과 단가를 곱하여 총 가격을 계산합니다.
+2. PurchaseSummaryCalculator.java
+PurchaseSummaryCalculator 클래스는 구매 기록을 처리하고, 월별 및 카테고리별 총 구매 금액을 요약합니다.
+summaryMap은 월별로 구성된 Map입니다. 각 월은 또 다른 Map으로 구성되어 있고, 그 안에는 카테고리와 해당 월에 속한 총 구매 금액이 포함되어 있습니다.
+processPurchaseRecord 메서드는 PurchaseRecord를 받아서 해당 월과 카테고리를 기반으로 요약 맵을 업데이트합니다.
+3. OutputFormatter.java
+OutputFormatter 클래스는 요약된 구매 정보를 파일에 쓰는 역할을 합니다.
+writeToFile 메서드는 파일 경로와 요약된 맵을 받아서 파일에 쓰기 작업을 수행합니다.
+파일의 형식은 "購入月,分類,総額"와 같은 헤더가 있으며, 각 라인은 월, 카테고리, 총 금액의 형식으로 기록됩니다.
+4. PurchaseSummary.java (Main Program)
+PurchaseSummary 클래스는 프로그램의 메인 부분을 담당합니다.
+커맨드 라인에서 입력 파일 경로와 출력 파일 경로를 받아와서 처리합니다.
+BufferedReader를 사용하여 입력 파일에서 각 라인을 읽어오고, 구매 기록으로 변환한 후 PurchaseSummaryCalculator를 사용하여 처리합니다.
+최종적으로 OutputFormatter를 사용하여 결과를 파일에 씁니다.
+이러한 방식으로, 이 프로그램은 구매 기록을 읽어와 월별 및 카테고리별로 총 구매 금액을 요약하고, 이를 파일에 출력하는 역할을 수행합니다.
