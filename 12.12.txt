@@ -1,0 +1,129 @@
+import java.io.IOException;
+import java.util.Map;
+
+public interface DataReader {
+    Map<String, Map<String, Integer>> readData(String filePath, String encoding) throws IOException;
+}
+
+----------------------------
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+
+import VO.PurchaseRecord;
+
+public class CSVDataReader implements DataReader {
+    @Override
+    public Map<String, Map<String, Integer>> readData(String filePath, String encoding) throws IOException {
+        Map<String, Map<String, Integer>> summaryMap = new HashMap<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath, Charset.forName(encoding)))) {
+            reader.lines()
+                  .skip(1)
+                  .map(line -> line.split(","))
+                  .filter(tokens -> tokens.length == 5)
+                  .map(tokens -> {
+                      try {
+                          return new PurchaseRecord(tokens[0], tokens[2], Integer.parseInt(tokens[3]), Integer.parseInt(tokens[4]));
+                      } catch (NumberFormatException e) {
+                          System.err.println("CSV 파일에서 정수를 파싱하는 중 오류 발생: " + e.getMessage());
+                          return null;
+                      }
+                  })
+                  .forEach(record -> processPurchaseRecord(record, summaryMap));
+        }
+
+        return summaryMap;
+    }
+
+    private void processPurchaseRecord(PurchaseRecord record, Map<String, Map<String, Integer>> summaryMap) {
+        if (record != null) {
+            String monthYear = record.getPurchaseDate().format(DateTimeFormatter.ofPattern("yyyy/MM"));
+            summaryMap.computeIfAbsent(monthYear, k -> new HashMap<>())
+                     .merge(record.getCategory(), record.getTotalPrice(), Integer::sum);
+        }
+    }
+}
+------------------------------
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+
+public interface DataWriter {
+    void writeData(String outputPath, Map<String, Map<String, Integer>> summaryMap, String encoding) throws IOException;
+}
+
+--------------------------
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Map;
+
+public class CSVDataWriter implements DataWriter {
+    @Override
+    public void writeData(String outputPath, Map<String, Map<String, Integer>> summaryMap, String encoding) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath, Charset.forName(encoding)))) {
+            writer.write("購入月,分類,総額\n");
+
+            summaryMap.forEach((monthYear, categoryMap) ->
+                categoryMap.forEach((category, totalAmount) -> {
+                    try {
+                        writer.write(monthYear + "," + category + "," + totalAmount + "\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                })
+            );
+        }
+    }
+}
+--------------------------------
+import java.io.IOException;
+import java.util.Map;
+
+public class Main {
+    public static void main(String[] args) {
+        if (args.length != 3) {
+            System.out.println("사용법: java Main.PurchaseSummary <입력파일경로> <출력파일경로> <문자인코딩>");
+            return;
+        }
+
+        String inputFilePath = args[0];
+        String outputFilePath = args[1];
+        String encoding = args[2];
+
+        try {
+            DataReader dataReader;
+            DataWriter dataWriter;
+
+            if (inputFilePath.toLowerCase().endsWith(".csv")) {
+                dataReader = new CSVDataReader();
+            } else if (inputFilePath.toLowerCase().endsWith(".tsv")) {
+                dataReader = new TSVDataReader();
+            } else {
+                System.err.println("지원하지 않는 파일 형식입니다.");
+                return;
+            }
+
+            if (outputFilePath.toLowerCase().endsWith(".csv")) {
+                dataWriter = new CSVDataWriter();
+            } else if (outputFilePath.toLowerCase().endsWith(".tsv")) {
+                dataWriter = new TSVDataWriter();
+            } else {
+                System.err.println("지원하지 않는 파일 형식입니다.");
+                return;
+            }
+
+            Map<String, Map<String, Integer>> summaryMap = dataReader.readData(inputFilePath, encoding);
+            dataWriter.writeData(outputFilePath, summaryMap, encoding);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
