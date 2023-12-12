@@ -1,0 +1,78 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class PurchaseRecord {
+    private LocalDate purchaseDate; // 購入日
+    private String category; // カテゴリ
+    private int totalPrice; // 合計価格
+
+    public PurchaseRecord(String date, String category, int price) {
+        try {
+            this.purchaseDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        } catch (DateTimeParseException e) {
+            System.err.println("日付のパース中にエラーが発生しました: " + e.getMessage());
+            this.purchaseDate = null; // 날짜를 인식하지 못한 경우 null로 설정
+        }
+        this.category = category;
+        this.totalPrice = price;
+    }
+
+    public LocalDate getPurchaseDate() {
+        return purchaseDate;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public int getTotalPrice() {
+        return totalPrice;
+    }
+}
+----------------------
+import java.time.format.DateTimeParseException;
+
+public class CSVDataReader implements DataReader {
+    @Override
+    public Map<String, Map<String, Integer>> readData(String filePath, String encoding) throws IOException {
+        Map<String, Map<String, Integer>> summaryMap = new HashMap<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            reader.lines()
+                .skip(1) // ヘッダー行スキップ
+                .map(line -> line.split(","))
+                .filter(tokens -> tokens.length == 5)
+                .map(tokens -> {
+                    try {
+                        return new PurchaseRecord(tokens[0], tokens[2], Integer.parseInt(tokens[3]));
+                    } catch (NumberFormatException e) {
+                        System.err.println("CSVファイルで整数パーシング中にエラーが発生 : " + e.getMessage());
+                        return null;
+                    }
+                })
+                .forEach(record -> processPurchaseRecord(record, summaryMap));
+        }
+
+        return summaryMap;
+    }
+
+    private void processPurchaseRecord(PurchaseRecord record, Map<String, Map<String, Integer>> summaryMap) {
+        if (record != null && record.getPurchaseDate() != null) {
+            String monthYear = record.getPurchaseDate().format(DateTimeFormatter.ofPattern("yyyy/MM"));
+            summaryMap.computeIfAbsent(monthYear, k -> new HashMap<>())
+                .merge(record.getCategory(), record.getTotalPrice(), Integer::sum);
+        }
+    }
+
+    @Override
+    public Map<String, Map<String, Integer>> readData(String filePath) throws IOException {
+        return readData(filePath, null); // 인코딩을 사용하지 않는 메서드 호출
+    }
+}
