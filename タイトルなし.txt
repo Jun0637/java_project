@@ -1,0 +1,242 @@
+12
+---------------------
+package csv;
+
+import java.io.BufferedReader;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import csvitf.DataReader;
+import vo.PurchaseRecord;
+
+public class CSVDataReader implements DataReader {
+    @Override
+    public Map<String, Map<String, Integer>> readData(String filePath, String encoding) throws IOException {
+        Map<String, Map<String, Integer>> summaryMap = new HashMap<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            reader.lines()
+                .skip(1) // ヘッダー行スキップ
+                .map(line -> line.split(","))
+                .filter(tokens -> tokens.length == 5)
+                .forEach(tokens -> {
+                    try {
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+                        PurchaseRecord record = new PurchaseRecord(tokens[0], tokens[2], Integer.parseInt(tokens[3]), Integer.parseInt(tokens[4]), formatter);
+                        processPurchaseRecord(record, summaryMap);
+                    } catch (NumberFormatException e) {
+                        System.err.println("CSVファイルで整数パーシング中にエラーが発生: " + e.getMessage());
+                        System.err.println("パーシングに失敗したレコード: " + Arrays.toString(tokens));
+                    }
+                });
+        }
+
+        return summaryMap;
+    }
+
+    private void processPurchaseRecord(PurchaseRecord record, Map<String, Map<String, Integer>> summaryMap) {
+        if (record != null && record.getPurchaseDate() != null) {
+            String monthYear = record.getPurchaseDate().format(DateTimeFormatter.ofPattern("yyyy/MM"));
+            summaryMap.computeIfAbsent(monthYear, k -> new HashMap<>())
+                .merge(record.getCategory(), record.getTotalPrice(), Integer::sum);
+        }
+    }
+
+    @Override
+    public Map<String, Map<String, Integer>> readData(String filePath) throws IOException {
+        return readData(filePath, null);
+    }
+}
+
+---------------------
+
+package csv;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Map;
+
+import csvitf.DataWriter;
+
+public class CSVDataWriter implements DataWriter {
+
+    @Override
+    public void writeData(String outputPath, Map<String, Map<String, Integer>> summaryMap, String encoding) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath))) {
+            writer.write("購入月,分類,総額\n");
+
+            summaryMap.forEach((monthYear, categoryMap) ->
+                    categoryMap.forEach((category, totalAmount) -> {
+                        try {
+                            writer.write(monthYear + "," + category + "," + totalAmount + "\n");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    })
+            );
+        }
+    }
+
+    // New method to save data to a file
+    public void saveDataToFile(String outputPath, Map<String, Map<String, Integer>> summaryMap, String encoding) {
+        try {
+            writeData(outputPath, summaryMap, encoding);
+            System.out.println("ファイルに保存されたデータ: " + outputPath);
+        } catch (IOException e) {
+            System.err.println("データの保存中にエラーが発生: " + e.getMessage());
+        }
+    }
+}
+
+---------------------
+package csvitf;
+
+import java.io.IOException;
+
+import java.util.Map;
+
+public interface DataReader {
+    Map<String, Map<String, Integer>> readData(String filePath) throws IOException;
+
+	Map<String, Map<String, Integer>> readData(String filePath, String encoding) throws IOException;
+}
+
+---------------------
+package csvitf;
+
+import java.io.IOException;
+
+
+import java.util.Map;
+
+public interface DataWriter {
+    void writeData(String outputPath, Map<String, Map<String, Integer>> summaryMap, String encoding) throws IOException;
+    
+}
+
+---------------------
+package main;
+
+import java.io.IOException;
+import java.util.Map;
+
+import csv.CSVDataReader;
+import csv.CSVDataWriter;
+
+
+public class PurchaseSummary {
+    public static void main(String[] args) {
+        String filePath = "c:/data/入力ファイル.csv";
+        String outputPath = "c:/data/出力ファイル.csv";
+        CSVDataReader dataReader = new CSVDataReader();
+
+        try {
+            Map<String, Map<String, Integer>> summaryMap = dataReader.readData(filePath);
+
+            // 出力ファイルパス指定
+
+            // ファイルにデータを保存
+            CSVDataWriter dataWriter = new CSVDataWriter();
+            dataWriter.saveDataToFile(outputPath, summaryMap, null);
+
+        } catch (IOException e) {
+            System.err.println("データの読み取り中にエラーが発生: " + e.getMessage());
+        }
+    }
+}
+
+
+---------------------
+package tsv;
+
+import java.io.IOException;
+
+import java.util.Map;
+
+import csvitf.DataReader;
+
+public class TSVDataReader implements DataReader {
+
+	@Override
+	public Map<String, Map<String, Integer>> readData(String filePath) throws IOException {
+		
+		return null;
+	}
+
+	@Override
+	public Map<String, Map<String, Integer>> readData(String filePath, String encoding) throws IOException {
+		
+		return null;
+	}
+    
+}
+
+---------------------
+package tsv;
+
+import java.io.IOException;
+
+import java.util.Map;
+
+import csvitf.DataWriter;
+
+public class TSVDataWriter implements DataWriter {
+
+	@Override
+	public void writeData(String outputPath, Map<String, Map<String, Integer>> summaryMap, String encoding)
+			throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+    
+
+
+}
+
+---------------------
+package vo;
+
+import java.time.LocalDate;
+
+import java.time.format.DateTimeFormatter;
+
+public class PurchaseRecord {
+    private String category; //カテゴリ
+    private LocalDate purchaseDate; //購入日
+    private int quantity; //数量
+    private int totalPrice; //合計価格
+
+    public PurchaseRecord(String category, String purchaseDate, int quantity, int totalPrice, DateTimeFormatter formatter) {
+    	this.category = category;
+        this.purchaseDate = LocalDate.parse(purchaseDate, formatter);
+        this.quantity = quantity;
+        this.totalPrice = totalPrice;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public LocalDate getPurchaseDate() {
+        return purchaseDate;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public int getTotalPrice() {
+        return totalPrice;
+    }
+
+}
+
+
+
+
