@@ -1,0 +1,144 @@
+package account;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.Properties;
+
+public interface Account {
+    void deposit(int amount);
+
+    boolean withdraw(int amount);
+
+    boolean transfer(int amount, Account destination);
+
+    String getAccountNumber();
+
+    int getBalance();
+
+    void loadAccounts(String filePath, Properties properties) throws IOException;
+
+    void saveAccounts(Map<String, Account> accounts, String outputFilePath) throws IOException;
+}
+-----------------------
+package account;
+
+import java.io.*;
+import java.util.*;
+
+public class AccountManager implements Account {
+    private static final String ENCODING = "Shift-JIS";
+    private static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+
+    private Map<String, Account> accounts;
+
+    public AccountManager() {
+        this.accounts = new HashMap<>();
+    }
+
+    @Override
+    public void deposit(int amount) {
+    }
+
+    @Override
+    public boolean withdraw(int amount) {
+        return false;
+    }
+
+    @Override
+    public boolean transfer(int amount, Account destination) {
+        return false;
+    }
+
+    @Override
+    public String getAccountNumber() {
+        return null;
+    }
+
+    @Override
+    public int getBalance() {
+        return 0;
+    }
+
+    @Override
+    public void loadAccounts(String filePath, Properties properties) throws IOException {
+    }
+
+    @Override
+    public void saveAccounts(Map<String, Account> accounts, String outputFilePath) throws IOException {
+    }
+
+    public void processAccounts(String inputFilePath) {
+    }
+}
+------------------------
+package main;
+
+import account.AccountManager;
+import transaction.TransactionManager;
+
+public class Bank {
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Usage: java Bank <inputFilePath>");
+            return;
+        }
+
+        String inputFilePath = args[0];
+        AccountManager accountManager = new AccountManager();
+        TransactionManager transactionManager = new TransactionManager();
+
+        // 계좌 및 거래 정보 처리
+        accountManager.processAccounts(inputFilePath);
+        transactionManager.processTransactions(inputFilePath);
+    }
+}
+------------------------------
+
+package transaction;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import account.Account;
+
+public interface Transaction {
+    void processTransactions(String inputFilePath);
+
+    void saveResultFile(List<String> outputLines, String inputFilePath) throws IOException;
+
+    Map<String, Account> getAccounts();
+}
+--------------------------
+package transaction;
+
+import account.Account;
+
+import java.io.*;
+import java.util.*;
+
+public class TransactionManager implements Transaction {
+    private static final String ENCODING = "Shift-JIS";
+    private static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+
+    private Map<String, Account> accounts;
+
+    public TransactionManager() {
+        this.accounts = new HashMap<>();
+    }
+
+    @Override
+    public void processTransactions(String inputFilePath) {
+        
+    }
+
+    @Override
+    public void saveResultFile(List<String> outputLines, String inputFilePath) throws IOException {
+       
+    }
+
+    @Override
+    public Map<String, Account> getAccounts() {
+        return accounts;
+    }
+}
